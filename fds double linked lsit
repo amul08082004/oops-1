@@ -1,0 +1,92 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct ticket {
+    int ticketid;
+    string passengername;
+    ticket* next;
+    ticket* prev;
+
+    ticket(int id, const string& name) : ticketid(id), passengername(name), next(nullptr), prev(nullptr) {}
+};
+
+class ticketbookingsystem {
+private:
+    ticket* head;
+    ticket* tail;
+
+public:
+    ticketbookingsystem() : head(nullptr), tail(nullptr) {}
+
+    void addticket(int id, const string& name) {
+        ticket* newticket = new ticket(id, name);
+        if (!head) {
+            head = tail = newticket;
+        } else {
+            tail->next = newticket;
+            newticket->prev = tail;
+            tail = newticket;
+        }
+        cout << "ticket booked successfully: id = " << id << ", name = " << name << endl;
+    }
+
+    void displaytickets() {
+        if (!head) {
+            cout << "no tickets booked yet." << endl;
+            return;
+        }
+        ticket* current = head;
+        cout << "booked tickets:" << endl;
+        while (current) {
+            cout << "ticket id: " << current->ticketid << ", passenger name: " << current->passengername << endl;
+            current = current->next;
+        }
+    }
+
+    void deleteticket(int id) {
+        ticket* current = head;
+        while (current) {
+            if (current->ticketid == id) {
+                if (current->prev) {
+                    current->prev->next = current->next;
+                } else {
+                    head = current->next;
+                }
+
+                if (current->next) {
+                    current->next->prev = current->prev;
+                } else {
+                    tail = current->prev;
+                }
+
+                delete current;
+                cout << "ticket with id " << id << " has been cancelled." << endl;
+                return;
+            }
+            current = current->next;
+        }
+        cout << "ticket with id " << id << " not found." << endl;
+    }
+
+    ~ticketbookingsystem() {
+        ticket* current = head;
+        while (current) {
+            ticket* next = current->next;
+            delete current;
+            current = next;
+        }
+    }
+};
+
+int main() {
+    ticketbookingsystem tbs;
+    tbs.addticket(101, "alice");
+    tbs.addticket(102, "bob");
+    tbs.displaytickets();
+    tbs.deleteticket(101);
+    tbs.displaytickets();
+    tbs.deleteticket(103);
+    return 0;
+}
